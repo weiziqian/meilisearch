@@ -332,7 +332,16 @@ impl QueryGraph {
             }
         }
         let cost_of_term_idx = move |term_idx: u8| *term_weight.get(&term_idx).unwrap();
-        Ok(self.removal_order_for_terms_matching_strategy(ctx, cost_of_term_idx))
+
+        let mut result = self.removal_order_for_terms_matching_strategy(ctx, cost_of_term_idx);
+
+        // Move the last term (the most "infrequent" word) to the front, so it gets removed first
+        if result.len() > 1 {
+            let last = result.pop().unwrap();
+            result.insert(0, last);
+        }
+
+        Ok(result)
     }
 
     pub fn removal_order_for_terms_matching_strategy_last(
